@@ -2,66 +2,67 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\UserModel;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\RedirectResponse;
+use App\DataTables\UserDataTable;
 
 class UserController extends Controller
 {
-    public function index()
-    {      
-        // $user = UserModel::all();
-        // return view('user', ['data' => $user]);
-
-        $user = UserModel::with('level')->get();
-        dd($user);
+    public function index(UserDataTable $dataTable)
+    {
+        return $dataTable->render('user.index');
     }
 
-    public function tambah()
+    public function create()
     {
-        return view('user_tambah');
+        return view('user.create');
     }
 
-    public function tambah_simpan(Request $request)
-    {
-        UserModel::create([
-            'username' => $request->username,
-            'nama' => $request->nama,
-            'password' => Hash::make('$request->password'),
-            'level_id' => $request->level_id
+    public function store(Request $request): RedirectResponse
+    {   
+        //dd($request->all());
+        $validated = $request->validate([
+            'level_id' => 'bail|required',
+            'username' => 'required',
+            'name' => 'required',
+            'password' => 'required',
         ]);
 
-        return redirect('/user');
+        $password = Hash::make($validated['password']);
+
+        UserModel::create([
+            'level_id' => $validated['level_id'],
+            'username' => $validated['username'],
+            'name' => $validated['name'],
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return redirect('/user_tes');
     }
 
-    public function ubah($id)
-    {
+    public function edit($id){
         $user = UserModel::find($id);
-        return view('user_ubah', ['data' => $user]);
+        return view('user.edit', ['data' => $user]);
     }
 
-    public function ubah_simpan($id, Request $request)
-    {
+    public function update(Request $request, $id){
         $user = UserModel::find($id);
-
-        $user->username = $request->username;
-        $user->nama = $request->nama;
-        $user->password = Hash::make('$request->password');
         $user->level_id = $request->level_id;
-
+        $user->username = $request->username;
+        $user->name = $request->name;
+        $user->password = $request->password;
         $user->save();
+        return redirect('/user');    
+    }
+
+    public function delete($id) {
+        UserModel::find($id)->delete();
 
         return redirect('/user');
     }
-
-    public function hapus($id)
-    {
-        $user = UserModel::find($id);
-        $user->delete();
-
-        return redirect('/user');
-    }
-
 }
 
 //frd

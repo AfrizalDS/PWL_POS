@@ -39,7 +39,7 @@
             </div>
             <div class="form-group">
                 <label for="namaKategori">Nama Kategori</label>
-                <input type="text" class="form-control" id="namaKategori" name="kategori_nama" placeholder="">
+                <input type="text" class="form-control" id="namaKategori" name="kategori_nama" placeholder="Masukkan Nama">
             </div>
         </div>
     
