@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\DataTables\KategoriDataTable;
 use App\Models\KategoriModel;
-
-
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 
 class KategoriController extends Controller
 {
@@ -22,22 +22,24 @@ class KategoriController extends Controller
     }
 
     
-    public function store(Request $request)
-{
-    $request->validate([
-        'kategori_kode' => 'required',
-        'kategori_nama' => 'required',
-    ]);
+    public function store(Request $request):RedirectResponse
+    {
+     
+        $validated = $request->validate([
+            'kategori_code' => 'bail|required|max:3|unique:m_kategori,kategori_kode',
+            'kategori_nama' => 'required',
+        ]);
+        
+        // Simpan data kategori
+        KategoriModel::create([
+            'kategori_kode' => $request->kategori_kode,
+            'kategori_nama' => $request->kategori_nama,
+        ]);
+    
+        return redirect('/kategori');
+    }
 
-    // Simpan data kategori
-    KategoriModel::create([
-        'kategori_kode' => $request->kategori_kode,
-        'kategori_nama' => $request->kategori_nama,
-    ]);
-
-    // Redirect ke halaman manajemen kategori
-    return redirect('/kategori')->with('success', 'Kategori berhasil dibuat.');
-}
+    
 
 
     public function edit($id){
