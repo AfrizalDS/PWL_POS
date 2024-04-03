@@ -35,3 +35,13 @@ Route::post('/kategori', [KategoriController::class, 'store']);
 Route::get('/kategori/edit/{id}', [KategoriController::class, 'edit']);
 Route::put('/kategori/update/{id}', [KategoriController::class, 'kategori.update']);
 Route::get('/kategori/delete/{id}', [KategoriController::class, 'delete']);
+
+
+
+Route::get('/m_level', function () {
+    return view('m_level');
+});
+
+Route::get('/m_user', function () {
+    return view('m_user');
+});
