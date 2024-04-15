@@ -21,7 +21,7 @@ use App\Http\Controllers\WelcomeController;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-Route::get('/', [WelcomeController::class,'index']);
+
 
 Route::get('/level', [LevelController::class, 'index']);
 Route::get('/kategori', [KategoriController::class, 'index']);
@@ -50,22 +50,31 @@ Route::get('/m_user', function () {
 });
 
 
-Route::prefix('/user')->group(function () {
-    Route::get('/', [UserController::class, 'index']);
-    Route::get('/create', [UserController::class, 'create']);
-    Route::post('/', [UserController::class, 'store']);
-    Route::get('/edit/{id}', [UserController::class, 'edit'])->name('user.edit_user');
-    Route::put('/update/{id}', [UserController::class, 'update'])->name('user.update_user');
-    Route::get('/delete/{id}', [UserController::class, 'destroy'])->name('user.delete_user');
-});
+// Route::prefix('/user')->group(function () {
+//     Route::get('/', [UserController::class, 'index']);
+//     Route::get('/create', [UserController::class, 'create']);
+//     Route::post('/', [UserController::class, 'store']);
+//     Route::get('/edit/{id}', [UserController::class, 'edit'])->name('user.edit_user');
+//     Route::put('/update/{id}', [UserController::class, 'update'])->name('user.update_user');
+//     Route::get('/delete/{id}', [UserController::class, 'destroy'])->name('user.delete_user');
+// });
 
-Route::prefix('/level')->group(function () {
-    Route::get('/', [LevelController::class, 'index']);
-    Route::get('/create', [LevelController::class, 'create']);
-    Route::post('/', [LevelController::class, 'store']);
-    Route::get('/edit/{id}', [LevelController::class, 'edit'])->name('level.edit');
-    Route::put('/update/{id}', [LevelController::class, 'update'])->name('level.update');
-    Route::get('/delete/{id}', [LevelController::class, 'destroy'])->name('level.delete');
-});
+
+
 
 Route::resource('m_user', POSController::class);
+
+
+//JOBSHEET 7
+
+Route::get('/', [WelcomeController::class,'index']);
+Route::group(['prefix' => 'user'], function () {
+    Route::get('/', [UserController::class, 'index']);          // menampilkan halaman awal user
+    Route::post('/list', [UserController::class, 'list']);      // menampilkan data user dalam bentuk json untuk datatables
+    Route::get('/create', [UserController::class, 'create']);   // menampilkan halaman form tambah user      
+    Route::post('/', [UserController::class, 'store']);         // menyimpan data user baru
+    Route::get('/{id}', [UserController::class, 'show']);       // menampilkan detail user
+    Route::get('/{id}/edit', [UserController::class, 'edit']);  // menampilkan halaman form edit user 
+    Route::put('/{id}', [UserController::class, 'update']);     // menyimpan perubahan data user
+    Route::delete('/{id}', [UserController::class, 'destroy']); // menghapus data user
+});
