@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
+use App\Models\StokModel;
 
 class PenjualanController extends Controller
 {
@@ -98,8 +99,6 @@ class PenjualanController extends Controller
 
         return $kodePenjualan;
     }
-
-    
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -111,6 +110,20 @@ class PenjualanController extends Controller
             'total_harga' => 'required|array',
             'jumlah' => 'required|array',
         ]);
+
+        foreach ($request->barang_id as $key => $barang_id) {
+            // Cek stok yang tersedia
+            $stok = StokModel::where('barang_id', $barang_id)->value('stok_jumlah');
+            $nama_barang = BarangModel::where('barang_id', $barang_id)->value('barang_nama');
+            $requestedQuantity = $request->jumlah[$key];
+
+            if ($stok < $requestedQuantity) {
+                // Jika jumlah yang diminta melebihi stok yang tersedia, kembalikan pengguna ke halaman sebelumnya
+                // (halaman tambah penjualan) dengan pesan kesalahan yang sesuai
+                return redirect()->back()->withInput()->withErrors(['stok' => 'Stok ' . $nama_barang . ' tidak mencukupi untuk penjualan ini']);
+            }
+        }
+        
         $penjualan = PenjualanModel::create([
             'user_id' => $request->user_id,
             'pembeli' => $request->pembeli,
@@ -118,6 +131,7 @@ class PenjualanController extends Controller
             'penjualan_tanggal' => $request->penjualan_tanggal
         ]);
 
+        $jumlahs = $request->jumlah;
         foreach ($request->barang_id as $key => $barangId) {
             penjualanDetailModel::create([
                 'penjualan_id' => $penjualan->penjualan_id,
@@ -125,10 +139,21 @@ class PenjualanController extends Controller
                 'harga' => $request->total_harga[$key],
                 'jumlah' => $request->jumlah[$key]
             ]);
+            // Dapatkan stok sebelum dikurangi
+            $stok_sebelum = (StokModel::where('barang_id', $barang_id)->value('stok_jumlah'));
+            // Kurangi stok
+            $stok_sesudah = $stok_sebelum - $jumlahs[$key];
+            // Perbarui stok dan informasi lainnya
+            StokModel::where('barang_id', $barang_id)->update([
+                'stok_jumlah' => $stok_sesudah,
+                'stok_tanggal' => date('Y-m-d'),
+                'user_id' => $request->user_id // Perbarui kembali user_id dengan nilai yang benar
+            ]);
         }
 
         return redirect('/penjualan')->with('success', 'Data Penjualan berhasil disimpan');
     }
+
 
     public function getHarga($id)
     {

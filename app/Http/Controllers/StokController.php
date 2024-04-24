@@ -64,22 +64,26 @@ class StokController extends Controller
         return view('stok.create', ['breadcrumb' => $breadcrumb, 'page' => $page, 'barang' => $barang, 'user' => $user, 'activeMenu' => $activeMenu]);
     }
     public function store(Request $request): RedirectResponse
-    {
-        $validated = $request->validate([
-            'barang_id' => 'bail|required|integer',
-            'stok_tanggal' => 'required|date',
-            'stok_jumlah' => 'required|integer',
-            'user_id' => 'required|integer',
-        ]);
-        StokModel::create([
-            'barang_id' => $request->barang_id,
-            'stok_tanggal' => $request->stok_tanggal,
-            'stok_jumlah' => $request->stok_jumlah,
-            'user_id' => $request->user_id,
-        ]);
+{
+    $request->validate([
+        'barang_id' => 'bail|required|integer|unique:t_stok', // Menambahkan aturan validasi unique untuk memastikan tidak ada barang_id yang sama di tabel t_stok
+        'stok_tanggal' => 'required|date',
+        'stok_jumlah' => 'required|integer',
+        'user_id' => 'required|integer',
+    ]);
 
-        return redirect('/stok')->with('success', 'Data Stok berhasil disimpan');
-    }
+    // Buat data stok baru
+    StokModel::create([
+        'barang_id' => $request->barang_id,
+        'stok_tanggal' => $request->stok_tanggal,
+        'stok_jumlah' => $request->stok_jumlah,
+        'user_id' => $request->user_id,
+    ]);
+
+    return redirect('/stok')->with('success', 'Data Stok berhasil disimpan');
+}
+
+    
     
     public function show(string $id)
     {

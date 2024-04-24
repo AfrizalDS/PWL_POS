@@ -114,7 +114,7 @@
                     '<td><input type="text" class="form-control harga" name="harga[]" readonly></td>' +
                     '<td><input type="number" class="form-control jumlah" name="jumlah[]" required></td>' +
                     '<td><input type="number" class="form-control total_harga" name="total_harga[]" readonly></td>' +
-                    '<td><button type="button" class="btn btn-danger btn-sm hapusBarang">Hapus Barang</button></td>' +
+                    '<td><button type="button" class="btn btn-danger btn-sm hapusBarang">Hapus</button></td>' +
                     '</tr>');
             });
 
